@@ -10,7 +10,7 @@ module EmojiForJekyll
     end
 
     def demojify(content)
-      content.gsub(/<img class='emoji'.*?title='([^']+)'.*?>/, ':\1:')
+      content.gsub(/<img class='emoji'.*?title='([^']+)'.*?>/, ':\1:') if !content.nil?
     end
   end
 
