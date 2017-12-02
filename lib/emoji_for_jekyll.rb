@@ -2,28 +2,62 @@ require 'json'
 
 module EmojiForJekyll
 
+  module Emojify
+    def emojify(content)
+      e = EmojiGenerator.new()
+      e.init_generator(@context.registers[:site])
+      e.filter(content)
+    end
+
+    def demojify(content)
+      return content.gsub(/<img class='emoji' .*?>/, '')
+    end
+  end
+
   class EmojiGenerator < Jekyll::Generator
-    def generate(site)
+    def init_generator(site)
       if site.config.has_key?("emoji") and !site.config["emoji"]
         return
       end
 
       if site.config.has_key?("emoji-additional-keys")
-        additional_keys = site.config["emoji-additional-keys"]
+        @additional_keys = site.config["emoji-additional-keys"]
       else
-        additional_keys = []
+        @additional_keys = []
       end
 
       get_master_whitelist
 
       get_images_path(site)
+    end
 
-      site.pages.each { |p| substitute(p, additional_keys) }
+    def generate(site)
+      init_generator(site)
+      site.pages.each { |p| substitute(p, @additional_keys) }
 
       (site.posts.respond_to?(:docs) ? site.posts.docs : site.posts ).each { |p|
-        substitute(p, additional_keys)
-        substitute(p.data['excerpt'], additional_keys) if p.data.has_key?("excerpt")
+        substitute(p, @additional_keys)
+        substitute(p.data['excerpt'], @additional_keys) if p.data.has_key?("excerpt")
       }
+    end
+
+    class ContentWrapper
+      def initialize(content)
+        @content = content
+        @data = {}
+      end
+      def content
+        @content
+      end
+      def data
+        @data
+      end
+    end
+
+    def filter(content)
+      p = ContentWrapper.new(content)
+      substitute(p, @additional_keys)
+      p.content
     end
 
     private
@@ -102,3 +136,5 @@ module EmojiForJekyll
     end
   end
 end
+
+Liquid::Template.register_filter(EmojiForJekyll::Emojify)
