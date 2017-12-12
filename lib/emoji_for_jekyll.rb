@@ -101,8 +101,10 @@ module EmojiForJekyll
         @master_whitelist.bsearch { |i| i >= key } == key
       end
 
-      obj.content.gsub!(/:([\w\+\-]+):/) do |s|
-        convert($1, filter)
+      if !obj.content.nil?
+        obj.content.gsub!(/:([\w\+\-]+):/) do |s|
+          convert($1, filter)
+        end
       end
 
       additional_keys.each do |key|
