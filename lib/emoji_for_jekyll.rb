@@ -15,7 +15,7 @@ module EmojiForJekyll
   end
 
   class EmojiGenerator < Jekyll::Generator
-    priority :lowest
+    priority :high
     def init_generator(site)
       if site.config.has_key?("emoji") and !site.config["emoji"]
         return
